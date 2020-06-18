@@ -11,9 +11,10 @@ from tkinter import ttk, font
 
 
 
-#states: home, startAddMacro, aMRecord, finishAddMacro, startChangeMacro, cMRecord, finishChangeMacro
-#TODO: test responses against each other so two keys don't do the same thing
+#states: home, startAddMacro, aMRecord, finishAddMacro, startDeleteMacro, deleteCheck, finishDeleteMacro, startChangeMacro, cMRecord, finishChangeMacro, macroView, startActivateMacro
 #TODO: make the message, buttons, & border look nicer
+#TODO: reoptimize the imbalanced macro check for UI support
+#TODO: support viewing a larger number of macros.
 
 
 
@@ -47,28 +48,32 @@ def changeState(newState):                    #prepares the frame for the state 
         macroKey.set('')
         btn = 'no key entered'
         #grid placements
-        messageLabel.grid(column = 0, row = 0, sticky = N, columnspan = 6)
-        addMacroButton.grid(column = 0, row = 1, sticky = (N,W,E), columnspan = 3)
-        deleteMacroButton.grid(column = 3, row = 1, sticky = (N,E,W), columnspan = 3)
-        editMacroButton.grid(column = 0, row = 2, sticky = (W,E), columnspan = 3)
-        viewMacrosButton.grid(column = 3, row = 2, sticky = (E,W), columnspan = 3)
-        activateMacroButton.grid(column = 0, row = 3, sticky = (S,W,E), columnspan = 3)
-        saveExitButton.grid(column = 3, row = 3, sticky = (S,E,W), columnspan = 3)
+        messageLabel.grid(column = 0, row = 0, sticky = (N,S), columnspan = 20)
+        addMacroButton.grid(column = 0, row = 1, sticky = (N,W,E,S), columnspan = 10, rowspan = 6)
+        deleteMacroButton.grid(column = 10, row = 1, sticky = (N,E,W,S), columnspan = 10, rowspan = 6)
+        editMacroButton.grid(column = 0, row = 7, sticky = (W,E,N,S), columnspan = 10, rowspan = 6)
+        viewMacrosButton.grid(column = 10, row = 7, sticky = (E,W,N,S), columnspan = 10, rowspan = 6)
+        activateMacroButton.grid(column = 0, row = 13, sticky = (S,W,E,N), columnspan = 10, rowspan = 6)
+        saveExitButton.grid(column = 10, row = 13, sticky = (S,E,W,N), columnspan = 10, rowspan = 6)
         #state change
         state = 'home'
     ###########addMacro###########
     elif newState == 'startAddMacro':
         #message, label, and button labels
+        cancelButton.configure(text="Cancel")
         message.set("Type the key you would like to store your macro on in the box and click next.")
         buttonLabel.set('Next')
+        #variable reinitializations
+        macroKey.set('')
+        btn = 'no key entered'
         #next button command configuration (in startFunction states)
         nextButton.configure(command = addMacro)
         #grid placements
-        messageLabel.grid(column = 0, row = 0, sticky = (N,W,E), columnspan = 20)
-        nextButton.grid(column = 18, row = 1, sticky = (S,E))
-        cancelButton.grid(column = 19, row = 1, sticky = (S,E))
-        macrKeyLabel.grid(column = 0, row = 1, sticky = (N,W))
-        macroEntry.grid(column = 1, row = 1, sticky = (N,W))
+        messageLabel.grid(column = 0, row = 0, sticky = (N,S), columnspan = 20, rowspan = 10)
+        nextButton.grid(column = 17, row = 10, sticky = (N,W,E), rowspan = 10)
+        cancelButton.grid(column = 18, row = 10, sticky = (N,W,E), rowspan = 10)
+        macrKeyLabel.grid(column = 1, row = 10, sticky = N, rowspan = 10)              #rowspan fixes resizing issue
+        macroEntry.grid(column = 2, row = 10, sticky = (N,W,E), rowspan = 10)          #see above
         #state change
         state = 'startAddMacro'
     elif newState == 'aMRecord':
@@ -78,59 +83,64 @@ def changeState(newState):                    #prepares the frame for the state 
         macroLabel.configure(text = btn)
         buttonLabel.set("Record")
         #grid placements
-        messageLabel.grid(column = 0, row = 0, sticky = (N,W,E), columnspan = 20)
-        macrKeyLabel.grid(column = 0, row = 1, sticky = (N,W))
-        macroLabel.grid(column = 1, row = 1, sticky = (N,W))
-        nextButton.grid(column = 18, row = 1, sticky = (S,E))
-        cancelButton.grid(column = 19, row = 1, sticky = (S,E))
+        messageLabel.grid(column = 0, row = 0, sticky = (N,S), columnspan = 20, rowspan = 10)
+        macrKeyLabel.grid(column = 1, row = 10, sticky = N, rowspan = 10)
+        macroLabel.grid(column = 2, row = 10, sticky = (N,W,E), rowspan = 10)
+        nextButton.grid(column = 17, row = 10, sticky = (N,W,E), rowspan = 10)
+        cancelButton.grid(column = 18, row = 10, sticky = (N,W,E), rowspan = 10)
         #state change
         state = 'aMRecord'
     elif newState == 'finishAddMacro':
         #message, label, and button labels
-        buttonLabel.set("Activate")
+        buttonLabel.set("Add Another")
         messageLabel.configure(font = messageFont)
         cancelButton.configure(text = "Home")
-        message.set("You may now press Activate to use your macro(s) or Home to go back to the starting page.\n")
+        message.set("You may now press Activate Macros to use your macro(s), Add Another to add more macros, or Home to go back to the starting page.\n")
         #grid placements
-        messageLabel.grid(column = 0, row = 0, sticky = (N,W,E), columnspan = 20)
-        nextButton.grid(column = 18, row = 2, sticky = (S,E))
-        cancelButton.grid(column = 19, row = 2, sticky = (S,E))
-        macrKeyLabel.grid(column = 0, row = 1, sticky = (N,W))
-        macroLabel.grid(column = 1, row = 1, sticky = (N,W))
-        responseLabel.grid(column = 0, row = 2, sticky = (S,W))
-        recordingLabel.grid(column = 1, row = 2, sticky = (S,W), columnspan = 17)
+        messageLabel.grid(column = 0, row = 0, sticky = (N,S), columnspan = 20, rowspan = 10)
+        nextButton.grid(column = 16, row = 11, sticky = (N,W,E), rowspan = 9)
+        activateMacroButton.grid(column = 17, row = 11, sticky = (N,W,E), rowspan = 9)
+        cancelButton.grid(column = 18, row = 11, sticky = (N,W,E), rowspan = 9)
+        macrKeyLabel.grid(column = 1, row = 10, sticky = N)
+        macroLabel.grid(column = 2, row = 10, sticky = (N,W))
+        responseLabel.grid(column = 1, row = 11, sticky = N, rowspan = 9)
+        recordingLabel.grid(column = 2, row = 11, sticky = (N,W,E), columnspan = 15, rowspan = 9)
         #state change
         state = 'finishAddMacro'
     ###############deleteMacro##############
     elif newState == 'startDeleteMacro':
         #message, label, and button labels
-        message.set("Please type in the key that triggers the macro you would like to delete, click View Macros to view your macros, or click Cancel to return to the main menu.")
+        message.set("Please type in the key that triggers the macro you would like to delete & click next.")
         buttonLabel.set("Next")
+        cancelButton.configure(text="Cancel")
+        #variable reinitializations
+        macroKey.set('')
+        btn = 'no key entered'
         #next button command configuration
         nextButton.configure(command = deleteMacro)
         #grid placements
-        messageLabel.grid(column = 0, row = 0, sticky = (N,W,E), columnspan = 20)
-        macrKeyLabel.grid(column = 0, row = 1, sticky = W)
-        macroEntry.grid(column = 1, row = 1, sticky = W)
-        nextButton.grid(column = 18, row = 1, sticky = (S,E))
-        cancelButton.grid(column = 19, row = 1, sticky = (S,E))
-        viewMacrosButton.grid(column = 17, row = 1, sticky = (S,E))
+        messageLabel.grid(column = 0, row = 0, sticky = (N,S), columnspan = 20, rowspan = 10)
+        macrKeyLabel.grid(column = 1, row = 10, sticky = N, rowspan = 10)
+        macroEntry.grid(column = 2, row = 10, sticky = (N,W,E), rowspan = 10)
+        nextButton.grid(column = 17, row = 10, sticky = (N,W,E), rowspan = 10)
+        cancelButton.grid(column = 18, row = 10, sticky = (N,W,E), rowspan = 10)
+        viewMacrosButton.grid(column = 16, row = 10, sticky = (N,W,E), rowspan = 10)
         #state change
         state = 'startDeleteMacro'
     elif newState == 'deleteCheck':
         #message, label, and button labels
-        message.set("You are about to delete the macro bound to the '" + btn + "' key. Click Delete to delete the macro or Cancel to go back to the main menu.")
+        message.set("You are about to delete the macro bound to the '" + btn + "' key. Click Delete to confirm or cancel to go back to the main menu.")
         buttonLabel.set("Delete")
         macroLabel.configure(text = btn)
         macroResponse.set(extractRecordingToPrint(getResponseFromKey(btn)))
         #grid placements
-        messageLabel.grid(column = 0, row = 0, sticky = (N,W,E), columnspan = 20)
-        macrKeyLabel.grid(column = 0, row = 1, sticky = (N,W))
-        macroLabel.grid(column = 1, row = 1, sticky = (N,W))
-        responseLabel.grid(column = 0, row = 2, sticky = (S,W))
-        recordingLabel.grid(column = 1, row = 2, sticky = (S,W), columnspan = 17)
-        nextButton.grid(column = 18, row = 2, sticky = (S,E))
-        cancelButton.grid(column = 19, row = 2, sticky = (S,E))
+        messageLabel.grid(column = 0, row = 0, sticky = (N,S), columnspan = 20, rowspan = 10)
+        macrKeyLabel.grid(column = 1, row = 10, sticky = N)
+        macroLabel.grid(column = 2, row = 10, sticky = (N,W,E))
+        responseLabel.grid(column = 1, row = 11, sticky = N, rowspan = 9)
+        recordingLabel.grid(column = 2, row = 11, sticky = (N,W,E), columnspan = 15, rowspan = 9)
+        nextButton.grid(column = 17, row = 11, sticky = (N,W,E), rowspan = 9)
+        cancelButton.grid(column = 18, row = 11, sticky = (N,W,E), rowspan = 9)
         #state change
         state = 'deleteCheck'
     elif newState == 'finishDeleteMacro':
@@ -139,71 +149,96 @@ def changeState(newState):                    #prepares the frame for the state 
         buttonLabel.set("Delete another")
         cancelButton.configure(text="Home")
         #grid placements
-        messageLabel.grid(column = 0, row = 0, sticky = (N,W,E), columnspan = 20)
-        nextButton.grid(column = 18, row = 1, sticky = (S,E))
-        cancelButton.grid(column = 19, row = 1, sticky = (S,E))
+        messageLabel.grid(column = 0, row = 0, sticky = (N,S), columnspan = 20, rowspan = 10)
+        nextButton.grid(column = 17, row = 10, sticky = (N,W,E), rowspan = 10)
+        cancelButton.grid(column = 18, row = 10, sticky = (N,W,E), rowspan = 10)
         #state change
         state = 'finishDeleteMacro'
     ################changeMacro##############
     elif newState == 'startChangeMacro':
         #message, label, and button labels
-        message.set("Please type in the key that triggers the macro you would like to edit, click View Macros to view your macros, or click Cancel to return to the main menu.")
+        message.set("Please type in the key that triggers the macro you would like to edit.")
         buttonLabel.set("Next")
+        cancelButton.configure(text="Cancel")
+        #variable reinitializations
+        macroKey.set('')
+        btn = 'no key entered'
         #next button command configuration
         nextButton.configure(command = changeMacros)
         #grid placements
-        messageLabel.grid(column = 0, row = 0, sticky = (N,W,E), columnspan = 20)
-        macrKeyLabel.grid(column = 0, row = 1, sticky = W)
-        macroEntry.grid(column = 1, row = 1, sticky = W)
-        nextButton.grid(column = 18, row = 1, sticky = (S,E))
-        cancelButton.grid(column = 19, row = 1, sticky = (S,E))
-        viewMacrosButton.grid(column = 17, row = 1, sticky = (S,E))
+        messageLabel.grid(column = 0, row = 0, sticky = (N, S), columnspan = 20, rowspan = 10)
+        macrKeyLabel.grid(column = 1, row = 10, sticky = N, rowspan = 10)
+        macroEntry.grid(column = 2, row = 10, sticky = (N,W,E), rowspan = 10)
+        nextButton.grid(column = 17, row = 10, sticky = (N,W,E), rowspan = 10)
+        cancelButton.grid(column = 18, row = 10, sticky = (N,W,E), rowspan = 10)
+        viewMacrosButton.grid(column = 16, row = 10, sticky = (N,W,E), rowspan = 10)
         #state change
         state = 'startChangeMacro'
     elif newState == 'cMRecord':
         #message, label, and button labels
-        message.set("You are about to change the macro bound to the '" + btn + "' key? Click Record to start recording (Stop by pressing esc) or click Cancel to cancel.")
+        message.set("You are about to change the macro bound to the '" + btn + "' key? Click Record to start recording (End by pressing esc) or click Cancel to cancel.")
         buttonLabel.set("Record")
         macroLabel.configure(text=btn)
         macroResponse.set(extractRecordingToPrint(getResponseFromKey(btn)))
         #grid placements
-        macrKeyLabel.grid(column = 0, row = 1, sticky = (N,W))
-        macroLabel.grid(column = 1, row = 1, sticky = (N,W))
-        messageLabel.grid(column = 0, row = 0, sticky = (N,W,E), columnspan = 20)
-        nextButton.grid(column = 18, row = 2, sticky = (S,E))
-        cancelButton.grid(column = 19, row = 2, sticky = (S,E))
-        responseLabel.grid(column = 0, row = 2, sticky = (S,W))
-        recordingLabel.grid(column = 1, row = 2, sticky = (S,W), columnspan = 17)
+        messageLabel.grid(column = 0, row = 0, sticky = (N,S), columnspan = 20, rowspan = 10)
+        macrKeyLabel.grid(column = 1, row = 10, sticky = N)
+        macroLabel.grid(column = 2, row = 10, sticky = (N,W,E))
+        responseLabel.grid(column = 1, row = 11, sticky = N, rowspan = 9)
+        recordingLabel.grid(column = 2, row = 11, sticky = (N,W,E), columnspan = 15, rowspan = 9)
+        nextButton.grid(column = 17, row = 11, sticky = (N,W,E), rowspan = 9)
+        cancelButton.grid(column = 18, row = 11, sticky = (N,W,E), rowspan = 9)
         #state change
         state = 'cMRecord'
     elif newState == 'finishChangeMacro':
         #message, label, and button labels
-        buttonLabel.set("Activate")
+        buttonLabel.set("Edit Another")
         cancelButton.configure(text = "Home")
-        message.set("You may now press Activate to use your macro(s) or Home to go back to the starting page.\n")
+        message.set("You may now press Activate Macros to use your macro(s), Edit Another to change another macro, or Home to go back to the starting page.\n")
         #grid placements
-        messageLabel.grid(column = 0, row = 0, sticky = (N,W,E), columnspan = 20)
-        nextButton.grid(column = 18, row = 2, sticky = (S,E))
-        cancelButton.grid(column = 19, row = 2, sticky = (S,E))
-        macrKeyLabel.grid(column = 0, row = 1, sticky = (N,W))
-        macroLabel.grid(column = 1, row = 1, sticky = (N,W))
-        responseLabel.grid(column = 0, row = 2, sticky = (S,W))
-        recordingLabel.grid(column = 1, row = 2, sticky = (S,W), columnspan = 17)
+        messageLabel.grid(column = 0, row = 0, sticky = (N,S), columnspan = 20, rowspan = 10)
+        macrKeyLabel.grid(column = 1, row = 10, sticky = N)
+        macroLabel.grid(column = 2, row = 10, sticky = (N,W,E))
+        responseLabel.grid(column = 1, row = 11, sticky = N, rowspan = 9)
+        recordingLabel.grid(column = 2, row = 11, sticky = (N,W,E), columnspan = 15, rowspan = 9)
+        nextButton.grid(column = 16, row = 11, sticky = (N,W,E), rowspan = 9)
+        activateMacroButton.grid(column = 17, row = 11, sticky = (N,W,E), rowspan = 9)
+        cancelButton.grid(column = 18, row = 11, sticky = (N,W,E), rowspan = 9)
         #state change
-        state = 'finishAddMacro'
+        state = 'finishChangeMacro'
     #############viewMacros#############
     elif newState == 'macroView':
         #message, label, and button labels
         cancelButton.configure(text="Home")
         message.set("Here are all of the macros you have already created.")
-        #grid placements
-        messageLabel.grid(column = 0, row = 0, sticky = (N,W,E))
-        cancelButton.grid(column = 1, row = len(actionList), sticky = (S,E))
+        #variable reinitializations
+
+        #grid placements    (rows go up to len(actionList) + 2)
+        messageLabel.grid(column = 0, row = 0, sticky = N, columnspan = 20)
+        addMacroButton.grid(column = 13, row  = 19, sticky = (N,W,E), rowspan = 2)
+        editMacroButton.grid(column = 14, row = 19, sticky = (N,W,E), rowspan = 2)
+        deleteMacroButton.grid(column = 15, row = 19, sticky = (N,W,E), rowspan = 2)
+        activateMacroButton.grid(column = 16, row = 19, sticky = (N,W,E), rowspan = 2)
+        cancelButton.grid(column = 17, row = 19, sticky = (N,W,E), rowspan = 2)
+        canvas.grid(column = 0, row = 1, sticky = (E,W), columnspan = 20, rowspan = 18)
+        scrollbar.grid(column = 19, row = 1, sticky = (N,S,E), rowspan = 18)
         getMacroLabelList()
         for currRow in range(0,len(actionList)):
-            macroLabelList[currRow].grid(column = 0, row = currRow + 1, sticky = (N,W))
+            macroLabelList[currRow].grid(column = 0, row = currRow + 1, sticky = (N,W,E), columnspan = 20)
         #state change
         state = 'macroView'
+    ##############activateMacros###########
+    elif newState == 'activateMacrosStart':
+        #message, label, and button labels
+        message.set("Once you click activate, your macros will be activated and this window will be inactive until you press 'esc' to deactivate your macros.")
+        cancelButton.configure(text="Home")
+        #grid placements
+        messageLabel.grid(column = 0, row = 0, sticky = (N,S), columnspan = 20, rowspan = 10)
+        viewMacrosButton.grid(column = 16, row = 10, sticky = (N,W,E), rowspan = 10)
+        activateMacroButton.grid(column = 17, row = 10, sticky = (N,W,E), rowspan = 10)
+        cancelButton.grid(column = 18, row = 10, sticky = (N,W,E), rowspan = 10)
+        #state change
+        state = 'activateMacrosStart'
     else:
         message.set("Something went wrong. Please try again.")
         cancelButton.configure(text="Home")
@@ -274,7 +309,7 @@ def getMacroLabelList():                        #updates the macroLabelList for 
         destroyLabelsFromList(macroLabelList)
         macroLabelList.clear()
     for label in range(0, len(actionList)):     #gets rows from 1 -> len(actionList) (not including 0 because 0th row is reserved for message)
-        newLabel = ttk.Label(frame, text = keyList[label] + ' -> ' + extractRecordingToPrint(actionList[label]), font = smallFont)
+        newLabel = ttk.Label(scrollFrame, text = keyList[label] + '  -->  ' + extractRecordingToPrint(actionList[label]), font = smallFont)
         macroLabelList.append(newLabel)
 
 
@@ -316,7 +351,7 @@ def extractRecordingToPrint(recorded):  #takes in a recording and returns a read
 
 def addMacro():
     global state, btn
-    if state == 'home':                                             #Add Macro button is pressed on home page
+    if state == 'home' or state == 'finishAddMacro' or state == 'macroView':                                             #Add Macro button is pressed on home page
         changeState('startAddMacro')                                #State changes to startAddMacro
         return
     if state == 'startAddMacro':                                    #Next button is pressed after user is prompted for macro key
@@ -334,10 +369,6 @@ def addMacro():
         recordInput('addMacro')
         changeState('finishAddMacro')
         return
-    elif state == 'finishAddMacro':                     #corresponds to an "Activate" button press
-        macroLoop()
-        #state change to activate macro state needed
-        return
 
 
 
@@ -347,7 +378,7 @@ def deleteMacro():                          #command to delete a macro from your
     if not actionList:                      #checks that there are macros to delete
         message.set("No macros found.")
         return
-    if state == 'home':                     #delete macro button on home page clicked
+    if state == 'home' or state == 'macroView' or state == 'finishDeleteMacro':                     #delete macro button on home page clicked
         changeState('startDeleteMacro')   
         return
     elif state == 'startDeleteMacro':       #next button clicked after macro key was prompted
@@ -365,9 +396,6 @@ def deleteMacro():                          #command to delete a macro from your
         deleteMacroFromLists(btn)
         changeState('finishDeleteMacro')
         return
-    elif state == 'finishDeleteMacro':
-        changeState('startDeleteMacro')
-        return
 
 
 
@@ -376,7 +404,7 @@ def changeMacros():
     if not actionList:                      #checks if there are macros that exist
         message.set("No macros found.")
         return
-    if state == 'home':                     #button was pressed from home screen
+    if state == 'home' or state == 'macroView' or state == 'finishChangeMacro':                     #button was pressed from home screen
         changeState('startChangeMacro')
         return
     elif state == 'startChangeMacro':       #next button after macro key prompt pressed
@@ -393,9 +421,6 @@ def changeMacros():
     elif state == 'cMRecord':               #record button pressed
         recordInput('changeMacros')
         changeState('finishChangeMacro')
-        return
-    elif state == 'finishChangeMacro':      #activate button pressed
-        macroLoop()
         return
     else:                                   #unrecognized or no state given
         message.set("Something went wrong. Please try again.")
@@ -414,8 +439,21 @@ def viewMacros():
 
 
 
+def activateMacros():
+    global state
+    if not actionList:
+        message.set("No macros found.")
+        return
+    if state == 'home' or state == 'macroView' or state == 'finishAddMacro' or state == 'finishChangeMacro':
+        changeState('activateMacrosStart')
+        return
+    elif state == 'activateMacrosStart':
+        macroLoop()
+        return
+
+
+
 def macroLoop():
-    message.set("Macros are now activated. Press any of your macro keys to perform their corresponding action or esc to deactivate your macros.")
     currKey = ''
     while currKey != 'esc':
         currKey = keyboard.read_key(suppress = True)                #reads the key being pressed. Does not give that key to any programs
@@ -466,17 +504,34 @@ getMacrosFromFiles()                    #reads in macros from previous session i
 
 tk = Tk()
 tk.title("Macriona")
+tk.geometry("1280x300")
+tk.resizable(False, False)
 #style configurations for window colors/fonts/etc.
 s = ttk.Style()
 s.configure('TFrame', background = 'white')                                                   #makes the frame background white
 s.configure('TLabel', background = 'white')                                                   #makes the button borders white
-frame = ttk.Frame(tk,padding = "3 3 12 12")                                                 #frame for widgets (not sure what the padding does)
-frame.grid(column = 0, row = 0, sticky = (N, W, E, S))                                      #places the frame
+frame = ttk.Frame(tk, padding = "3 3 12 12", relief = 'raised')  
+Grid.rowconfigure(tk, 0, weight = 1)
+Grid.columnconfigure(tk, 0, weight = 1)                                                                           #frame for widgets
+frame.grid(column = 0, row = 0, sticky = (N,E,S,W), columnspan = 20, rowspan = 20)                                 #places the primary frame
+#view macro widgets
+canvas = Canvas(frame)
+scrollbar = ttk.Scrollbar(frame, orient="vertical", command=canvas.yview)
+scrollFrame = ttk.Frame(canvas)
+
+scrollFrame.bind(
+    "<Configure>",
+    lambda e: canvas.configure(
+        scrollregion=canvas.bbox("all")
+    )
+)
+
+canvas.create_window((0, 0), window=scrollFrame, anchor="center")
+canvas.configure(yscrollcommand=scrollbar.set)
 #column and row configures should allow for resizing when window size changes   TODO: figure out how this works
-for t in range(0,19):
-    tk.columnconfigure(t, weight = 1)
-for u in range(0,3):
-    tk.rowconfigure(u, weight = 1)
+for cell in range(0,19):
+    Grid.columnconfigure(frame, cell, weight = 1)
+    Grid.rowconfigure(frame, cell, weight = 1)
 #string variables for changing labels
 macroKey = StringVar()                                                                      #stringvar to hold the macro key
 macroResponse = StringVar()                                                                 #stringvar to hold the macro response
@@ -495,12 +550,12 @@ messageLabel = ttk.Label(frame, textvariable = message, font = messageFont)     
 macrKeyLabel = ttk.Label(frame, text = "Macro key:", font = smallFont)                     #label to present the macro key to the user
 responseLabel = ttk.Label(frame, text = "Response:", font = smallFont)                     #label to present the macro response to the user
 #Buttons for user to press
-addMacroButton = ttk.Button(frame, text = "Add Macro", command = addMacro)                      #home button for addMacro
-deleteMacroButton = ttk.Button(frame, text = "Delete Macro", command = deleteMacro)             #home button for deleteMacro
-editMacroButton = ttk.Button(frame, text = "Edit Macro", command = changeMacros)                #home button for changeMacros
+addMacroButton = ttk.Button(frame, text = "Add Macro(s)", command = addMacro)                      #home button for addMacro
+deleteMacroButton = ttk.Button(frame, text = "Delete Macro(s)", command = deleteMacro)             #home button for deleteMacro
+editMacroButton = ttk.Button(frame, text = "Edit Macro(s)", command = changeMacros)                #home button for changeMacros
 viewMacrosButton = ttk.Button(frame, text = "View Macros", command = viewMacros)                #home button for viewMacros
-activateMacroButton = ttk.Button(frame, text = "Activate Macros", command = macroLoop)          #home button for macroLoop
-saveExitButton = ttk.Button(frame, text = "Save & Exit", command = lambda: saveMacros(True))                 #home button for exitMacrion
+activateMacroButton = ttk.Button(frame, text = "Activate Macros", command = activateMacros)          #home button for macroLoop
+saveExitButton = ttk.Button(frame, text = "Save & Exit", command = lambda: saveMacros(True))    #home button for exitMacrion
 nextButton = ttk.Button(frame, textvariable = buttonLabel, command = addMacro)                  #next button used in most functions
 cancelButton = ttk.Button(frame, text = 'Cancel',command = lambda: changeState('home'))        #cancel button used to go home
 #initialization
